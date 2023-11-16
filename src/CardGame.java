@@ -1,5 +1,3 @@
-package Prototype;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -9,8 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-class CardGame {
-
+public class CardGame {
     static Pack _pack;
     static List<Deck> _decks = new ArrayList<>();
     static List<Player> _players = new ArrayList<>();

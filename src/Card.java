@@ -1,5 +1,3 @@
-package Prototype;
-
 public class Card implements Comparable<Card> {
 
     private int _value;

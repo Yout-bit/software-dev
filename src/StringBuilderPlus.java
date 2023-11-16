@@ -1,5 +1,3 @@
-package Prototype;
-
 public class StringBuilderPlus {
 
     private StringBuilder sb;

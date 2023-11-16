@@ -1,9 +1,7 @@
-package Prototype;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-
 
 // A pack does not need to be thread safe where a deck does
 public class Pack extends Deck{    
