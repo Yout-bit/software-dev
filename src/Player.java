@@ -32,7 +32,7 @@ public class Player {
         return _preferredCardValue;
     }
 
-    // This will be the loop that is tun for all players simultaneously (threaded) until the someone winns
+    // This will be the loop that is tun for all players simultaneously (threaded) until the someone wins
     public void play() {
         _log.appendLine("player " +  _preferredCardValue + " initial hand " + _hand.toString());
 
