@@ -17,19 +17,23 @@ public class CardGame {
     }
 
     /*
-     * Asks the user for the number of players and the pack filename.
-     * Creates the players and decks, and loads the pack from the file
-     * Deals the cards out to the players then the decks 
+     * Creates the players and decks, and loads the pack from the file.
+     * Deals the cards to the players and starts play
      */
     public static void setup() {
+        getPlayers();
+        getPack();
+        deal();
+        play();
+    }
+    
+    /*
+    * Asks the user for the number of players and creates the players and decks accordingly 
+     */
+    private static void getPlayers() {
         Scanner in = new Scanner(System.in);
         System.out.print("Enter number of players   ");
         int playerCount = in.nextInt();
-        System.out.print("Enter card pack name   ");
-        String filename = in.next();
-        in.close();
-        System.out.println(playerCount);
-        System.out.println(filename);
 
         for (int i = 0; i < playerCount; i++) { 
             _decks.add(new Deck(i+1));
@@ -37,14 +41,21 @@ public class CardGame {
         for (int i = 0; i < playerCount; i++) { 
             _players.add(new Player( _decks.get(i), _decks.get( Math.floorMod(i - 1, 4 ) ), i + 1 ));
         }
-        _pack = readPackFile(filename);
-        deal();
-        for (Player player : _players) {
-            System.out.println("player" + player.getPreferredCard() + " has " + player.getHand());
-        }
-        for (Deck deck : _decks) {
-            System.out.println(deck);
-        }
+
+        in.close();
+    }
+
+    /*
+     * Asks the user for a filename and the pack is invalid, keeps asking.
+     */
+    private static void getPack() {
+        String filename = "";
+        Scanner in = new Scanner(System.in);
+        do {
+            System.out.print("Enter card pack name   ");
+            filename = in.next();
+        } while (!readPackFile(filename));
+        in.close();
     }
 
     // Might need to be changed to properly find the file, but when complied should work with just `new File(filename)` 
@@ -52,9 +63,9 @@ public class CardGame {
      * Load a file from the given filename and read it into a string array.
      * Then parses each element as an int, and checks the pack is valid
      */
-    private static Pack readPackFile(String filename) {
+    private static boolean readPackFile(String filename) {
         try {
-            File file = new File("Prototype\\" + filename);
+            File file = new File("src\\" + filename);
             byte[] bytes = new byte[(int) file.length()];
             FileInputStream fis = new FileInputStream(file);
             fis.read(bytes);
@@ -64,7 +75,8 @@ public class CardGame {
             for (int i = 0; i < valueStr.length; i++) {
                 intList[i] = Integer.parseInt(valueStr[i]);
             }
-            return checkPack(intList);
+            _pack = checkPack(intList);
+            return true;
         } catch (FileNotFoundException e ) {
             System.out.println("File could not be found");
         } catch (NumberFormatException e ) {
@@ -75,7 +87,7 @@ public class CardGame {
         } catch (InvalidPackError e) {
             System.out.println(e.getMessage());
         }
-        return null;
+        return false;
     }
 
     /*
@@ -96,10 +108,50 @@ public class CardGame {
         }
         return pack;
     }
+    
+    /*
+     * Shuffles the pack and deals 4 cards to each player and deck
+     * Supposes the pack is of the correct size.
+     */
+    public static void deal() {
+        _pack.shuffle();
+        for (int i = 0; i < 4 ; i ++) {
+            for (Player player : _players) {
+                player.giveCard(_pack.remove());
+            }
+            for (Deck deck : _decks) {
+                deck.add(_pack.remove());
+            }
+        }
+    }
 
     /*
-     * Returns the mode value of the given array. 
+     * Starts all the player threads then constantly checks whether each player has won.
+     * If a player has won, it broadcasts that information to all other players.
      */
+    public static void play() {
+        for (Player player : _players) {
+            player.run();
+        }
+        int winner = -1;
+        while (winner == -1) {
+            for (int i = 0 ; i < _players.size() ; i++) {
+               if (_players.get(i).getWon()) {
+                    winner = i;
+                    System.out.println("player " + (i+1) + " has won");
+               }
+            }
+        }
+        logDecks();
+        for (Player player : _players) {
+            player.setWinner(winner);
+            player.gameOver();
+        }
+    }
+
+    /*
+    * Returns the mode value of the given array. 
+    */
     public static int mode(int[] array) {
         int mode = array[0];
         int maxCount = 0;
@@ -118,22 +170,6 @@ public class CardGame {
             return mode;
         }
         return 0;
-    }
-
-    /*
-     * Shuffles the pack and deals 4 cards to each player and deck
-     * Supposes the pack is of the correct size.
-     */
-    public static void deal() {
-        _pack.shuffle();
-        for (int i = 0; i < 4 ; i ++) {
-            for (Player player : _players) {
-                player.giveCard(_pack.remove());
-            }
-            for (Deck deck : _decks) {
-                deck.add(_pack.remove());
-            }
-        }
     }
 
     /*
