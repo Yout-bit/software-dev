@@ -3,7 +3,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Player {
+public class Player extends Thread {
     
     Hand _hand = new Hand();
     Deck _leftDeck;
@@ -33,21 +33,29 @@ public class Player {
     }
 
     // This will be the loop that is tun for all players simultaneously (threaded) until the someone wins
-    public void play() {
+    public void run() {
         _log.appendLine("player " +  _preferredCardValue + " initial hand " + _hand.toString());
-
-        //Main while loop, check game over value, and if both
+        
+        //Main while loop, check game over value, and if both decks are of size 4, ha a turn else wait
         while (!_gameOver) {
             while (_leftDeck.size() != 4 && _rightDeck.size() != 4) {
-                //Thread.sleep(1000)
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             playTurn();
         }
         
         //End of the game
         if (!_won) {
+            // only append this line if another player won 
             _log.appendLine("player " + _winner + " has informed player " + _preferredCardValue + " that player " + _winner + " has won");
+        } else {
+            _log.append("player " +  _preferredCardValue + " wins");
         }
+
         _log.appendLine("player " +  _preferredCardValue + " exits");
         _log.appendLine("player " +  _preferredCardValue + " final hand: " + _hand.toString());
     }
@@ -79,6 +87,9 @@ public class Player {
         return _won;
     }
 
+    public void setWinner(int winner) {
+        _winner = winner;
+    }
 
     private class Hand {
         int PREFERRED_CARD_AGE = 10;   
@@ -147,4 +158,3 @@ public class Player {
         
     }
 }
-
