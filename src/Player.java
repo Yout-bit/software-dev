@@ -6,15 +6,13 @@ import java.util.Map;
 public class Player extends Thread {
     
     Hand _hand = new Hand();
-    Deck _leftDeck;
-    Deck _rightDeck;
+    Deck<Card> _leftDeck;
+    Deck<Card> _rightDeck;
     int _preferredCardValue;
-    boolean _gameOver = false;
-    boolean _won = false;
-    int _winner = -1;
-    StringBuilderPlus _log;
+    volatile int _winner = -1;
+    StringBuilderPlus _log = new StringBuilderPlus();
     
-    public Player(Deck leftDeck, Deck rightDeck, int preferredCardValue) {
+    public Player(Deck<Card> leftDeck, Deck<Card> rightDeck, int preferredCardValue) {
         _leftDeck = leftDeck;
         _rightDeck = rightDeck;
         _preferredCardValue = preferredCardValue;
@@ -34,32 +32,32 @@ public class Player extends Thread {
 
     // This will be the loop that is tun for all players simultaneously (threaded) until the someone wins
     public void run() {
+        _log =  new StringBuilderPlus();
         _log.appendLine("player " +  _preferredCardValue + " initial hand " + _hand.toString());
         
-        //Main while loop, check game over value, and if both decks are of size 4, ha a turn else wait
-        while (!_gameOver) {
-            while (_leftDeck.size() != 4 && _rightDeck.size() != 4) {
+        //Main while loop, check game over value, and if deck that it pulls from is of size 4 or greater, has a turn else wait
+        while (_winner == -1) {
+            if (_leftDeck.size() < 4) {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+            } else {
+                playTurn();
             }
-            playTurn();
         }
         
         //End of the game
-        if (!_won) {
-            // only append this line if another player won 
+        if (_winner != _preferredCardValue) {
             _log.appendLine("player " + _winner + " has informed player " + _preferredCardValue + " that player " + _winner + " has won");
-        } else {
-            _log.append("player " +  _preferredCardValue + " wins");
+        } else { 
+            _log.appendLine("player " + _preferredCardValue + " wins");
         }
-
         _log.appendLine("player " +  _preferredCardValue + " exits");
         _log.appendLine("player " +  _preferredCardValue + " final hand: " + _hand.toString());
+        _log.saveToFile("player" + _preferredCardValue + "_output.txt");
     }
-
 
     /*
      * Checks if the player has a winning hand.
@@ -69,26 +67,32 @@ public class Player extends Thread {
      * Increments the age of all cards in the hand.
      */
     private void playTurn() {
+        
         if (_hand.allEqual()) {
-            _won = true;
-            gameOver();
-            _log.appendLine("player " + _preferredCardValue + " wins");
+            if (_winner == -1) {
+                _winner = _preferredCardValue;
+            }
             return;
         }
         _rightDeck.add( _hand.delete(_hand.add(_leftDeck.remove()).selectCard())); 
         _hand.incrementAge();
+        _log.appendLine("player " + _preferredCardValue + " current hand is " + _hand);
     }
 
-    public void gameOver() {
-        _gameOver = true;
-    }
-
-    public boolean getWon() {
-        return _won;
+    public int getWinner() {
+        return _winner;
     }
 
     public void setWinner(int winner) {
         _winner = winner;
+    }
+
+    public boolean getWon(){
+        if (_winner == _preferredCardValue) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private class Hand {
@@ -112,10 +116,12 @@ public class Player extends Thread {
         public Card remove(int index) {
             Card card = _cards.remove(index);
             _cardAgeMap.remove(card);
+            _log.appendLine("player " + _preferredCardValue + " discards " + card.getValue() + " to deck " + _rightDeck._name);
             return card;
         }
 
         public Hand add(Card card) {
+            _log.appendLine("player " + _preferredCardValue + " draws " + card.getValue() + " from deck " + _leftDeck._name);
             _cards.add(card);
             _cardAgeMap.put(card, 0);
             return this;

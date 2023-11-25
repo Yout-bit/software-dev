@@ -1,22 +1,21 @@
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 
-public class Deck {
+public class Deck<T> {
 
-    // BlockingQueue is thread safe
-    BlockingQueue<Card> _deck;
+    volatile BlockingQueue<T> _deck;
     String _name;
 
     public Deck(Object name) {
-        _deck = new LinkedBlockingDeque<>();
+        _deck = new LinkedBlockingQueue<>();
         _name = name.toString();
     }
 
-    public void add(Card value) {
+    public void add(T value) {
        _deck.add(value);
     }
 
-    public Card remove() {
+    public T remove() {
         return _deck.remove();
     }
 
@@ -26,7 +25,7 @@ public class Deck {
 
     public String toString() {
         String str= "";
-        for (Card card : _deck) {
+        for (T card : _deck) {
             str += card + " ";
         }
         return str;

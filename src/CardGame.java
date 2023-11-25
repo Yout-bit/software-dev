@@ -9,53 +9,54 @@ import java.util.Scanner;
 
 public class CardGame {
     static Pack _pack;
-    static List<Deck> _decks = new ArrayList<>();
+    static List<Deck<Card>> _decks = new ArrayList<>();
     static List<Player> _players = new ArrayList<>();
 
     public static void main(String[] args) {
-        setup();
+        playGame();
     }
 
     /*
      * Creates the players and decks, and loads the pack from the file.
      * Deals the cards to the players and starts play
      */
-    public static void setup() {
-        getPlayers();
-        getPack();
-        deal();
+    public static void playGame() {
+        setup();
         play();
+    }
+
+    private static void setup() {
+        Scanner in = new Scanner(System.in);
+        getPlayers(in);
+        getPack(in);
+        in.close();
+        deal();
     }
     
     /*
     * Asks the user for the number of players and creates the players and decks accordingly 
      */
-    private static void getPlayers() {
-        Scanner in = new Scanner(System.in);
+    private static void getPlayers(Scanner in) {
         System.out.print("Enter number of players   ");
         int playerCount = in.nextInt();
 
         for (int i = 0; i < playerCount; i++) { 
-            _decks.add(new Deck(i+1));
+            _decks.add(new Deck<Card>(i+1));
         }
         for (int i = 0; i < playerCount; i++) { 
             _players.add(new Player( _decks.get(i), _decks.get( Math.floorMod(i - 1, 4 ) ), i + 1 ));
         }
-
-        in.close();
     }
 
     /*
      * Asks the user for a filename and the pack is invalid, keeps asking.
      */
-    private static void getPack() {
+    private static void getPack(Scanner in) {
         String filename = "";
-        Scanner in = new Scanner(System.in);
         do {
             System.out.print("Enter card pack name   ");
             filename = in.next();
         } while (!readPackFile(filename));
-        in.close();
     }
 
     // Might need to be changed to properly find the file, but when complied should work with just `new File(filename)` 
@@ -99,8 +100,8 @@ public class CardGame {
             throw new InvalidPackError("Pack too small for number of players");
         }
 
-        if (mode(listPack) < 4) {
-            throw new InvalidPackError("Pack has not winnable");
+        if (modeCount(listPack) < 4) {
+            throw new InvalidPackError("Pack not winnable");
         }
         Pack pack = new Pack();
         for (int i = 0; i < 8 * _players.size() ; i++) {
@@ -119,7 +120,7 @@ public class CardGame {
             for (Player player : _players) {
                 player.giveCard(_pack.remove());
             }
-            for (Deck deck : _decks) {
+            for (Deck<Card> deck : _decks) {
                 deck.add(_pack.remove());
             }
         }
@@ -131,29 +132,34 @@ public class CardGame {
      */
     public static void play() {
         for (Player player : _players) {
-            player.run();
+            player.start();
         }
         int winner = -1;
         while (winner == -1) {
-            for (int i = 0 ; i < _players.size() ; i++) {
-               if (_players.get(i).getWon()) {
-                    winner = i;
-                    System.out.println("player " + (i+1) + " has won");
-               }
-            }
+            winner = checkWinner();
         }
-        logDecks();
+
+        System.out.println("player " + winner + " has won");
+
         for (Player player : _players) {
             player.setWinner(winner);
-            player.gameOver();
         }
+        logDecks();
+    }
+    
+    private static int checkWinner() {
+        for (int i = 0 ; i < _players.size() ; i++) {
+            if (_players.get(i).getWon()) {
+                    return i + 1;
+               }
+            }
+        return -1;
     }
 
     /*
-    * Returns the mode value of the given array. 
+    * Returns the mode count of the given array. 
     */
-    public static int mode(int[] array) {
-        int mode = array[0];
+    public static int modeCount(int[] array) {
         int maxCount = 0;
         for (int i = 0; i < array.length; i++) {
             int value = array[i];
@@ -161,15 +167,11 @@ public class CardGame {
             for (int j = 0; j < array.length; j++) {
                 if (array[j] == value) count++;
                 if (count > maxCount) {
-                    mode = value;
                     maxCount = count;
                     }
                 }
         }
-        if (maxCount > 1) {
-            return mode;
-        }
-        return 0;
+        return maxCount;
     }
 
     /*

@@ -12,7 +12,7 @@ public class Card implements Comparable<Card> {
 
     @Override
     public int compareTo(Card otherCard) {
-        return Integer.compare(getValue(), otherCard.getValue());
+        return Integer.compare(this.getValue(), otherCard.getValue());
     }
 
     public String toString() {
