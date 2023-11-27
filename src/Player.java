@@ -95,7 +95,7 @@ public class Player extends Thread {
         }
     }
 
-    private class Hand {
+    class Hand {
         int PREFERRED_CARD_AGE = 10;   
 
         private List<Card> _cards = new ArrayList<Card>();
