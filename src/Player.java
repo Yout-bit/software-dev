@@ -98,8 +98,8 @@ public class Player extends Thread {
     class Hand {
         int PREFERRED_CARD_AGE = 10;   
 
-        private List<Card> _cards = new ArrayList<Card>();
-        private Map<Card, Integer> _cardAgeMap = new HashMap<Card, Integer>();
+        private ArrayList<Card> _cards = new ArrayList<>();
+        private Map<Card, Integer> _cardAgeMap = new HashMap<>();
 
         public String toString() {
             String str= "";
@@ -107,6 +107,10 @@ public class Player extends Thread {
                 str += card + " ";
             }
             return str;
+        }
+
+        public ArrayList<Card> getHandCards() {
+            return _cards;
         }
 
         public Card delete(Card card) {
@@ -149,7 +153,7 @@ public class Player extends Thread {
          * Else selects a random cards from the none preferred remaining.
          */
         public Card selectCard() {
-            List<Card> selectableCards = new ArrayList<Card>();
+            List<Card> selectableCards = new ArrayList<>();
             for (Card card : _cards) {
                 if (card.getValue() == _preferredCardValue) {
                     if ( _cardAgeMap.get(card) >= PREFERRED_CARD_AGE) {
