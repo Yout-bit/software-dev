@@ -64,7 +64,7 @@ public class CardGame {
      * Load a file from the given filename and read it into a string array.
      * Then parses each element as an int, and checks the pack is valid
      */
-    private static boolean readPackFile(String filename) {
+    public static boolean readPackFile(String filename) {
         try {
             File file = new File("src\\" + filename);
             byte[] bytes = new byte[(int) file.length()];
