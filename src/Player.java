@@ -1,7 +1,5 @@
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Player extends Thread {
     
@@ -64,7 +62,6 @@ public class Player extends Thread {
      * Then pulls a card from the players left deck and adds it to their hand.
      * Selects a card from the 5 in their hand to play and removes it from the hand 
      * and adds it to the right deck.
-     * Increments the age of all cards in the hand.
      */
     private void playTurn() {
         
@@ -75,7 +72,6 @@ public class Player extends Thread {
             return;
         }
         _rightDeck.add( _hand.delete(_hand.add(_leftDeck.remove()).selectCard())); 
-        _hand.incrementAge();
         _log.appendLine("player " + _preferredCardValue + " current hand is " + _hand);
     }
 
@@ -96,10 +92,7 @@ public class Player extends Thread {
     }
 
     class Hand {
-        int PREFERRED_CARD_AGE = 10;   
-
         private ArrayList<Card> _cards = new ArrayList<>();
-        private Map<Card, Integer> _cardAgeMap = new HashMap<>();
 
         public String toString() {
             String str= "";
@@ -119,7 +112,6 @@ public class Player extends Thread {
 
         public Card remove(int index) {
             Card card = _cards.remove(index);
-            _cardAgeMap.remove(card);
             _log.appendLine("player " + _preferredCardValue + " discards " + card.getValue() + " to deck " + _rightDeck._name);
             return card;
         }
@@ -127,17 +119,9 @@ public class Player extends Thread {
         public Hand add(Card card) {
             _log.appendLine("player " + _preferredCardValue + " draws " + card.getValue() + " from deck " + _leftDeck._name);
             _cards.add(card);
-            _cardAgeMap.put(card, 0);
             return this;
         }
         
-        public Hand incrementAge() {
-            for (Card card : _cards) {
-                _cardAgeMap.put(card, _cardAgeMap.get(card) + 1);
-            }
-            return this;
-        }
-
         public boolean allEqual() {
             for (Card card : _cards) {
                 if (card.getValue() != _cards.get(0).getValue()) {
@@ -148,18 +132,12 @@ public class Player extends Thread {
         }
 
         /*
-         * Chooses a card to play based on the conditions:
-         * Selects the first preferred card has been in the players hand for 10 turns or more.
-         * Else selects a random cards from the none preferred remaining.
+         * Chooses a card to play
          */
         public Card selectCard() {
             List<Card> selectableCards = new ArrayList<>();
             for (Card card : _cards) {
-                if (card.getValue() == _preferredCardValue) {
-                    if ( _cardAgeMap.get(card) >= PREFERRED_CARD_AGE) {
-                        return card;
-                    }
-                } else {
+                if (card.getValue() != _preferredCardValue) {
                     selectableCards.add(card);
                 }
             }
