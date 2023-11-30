@@ -36,7 +36,10 @@ public class PlayerTest {
 
     @Test
     public void testRun() {
-
+        addLeft(player.get_leftDeck());
+        addLeft(player.get_leftDeck());
+        player.getHand().add(new Card(5));
+        player.getHand().add(new Card(6));
         // Perform a turn
         player.start();
 
@@ -66,6 +69,20 @@ public class PlayerTest {
         hand.add(card);
 
         assert(hand.allEqual());
+    }
+
+    @Test
+    public void testPlayTurn () {
+        player.getHand().add(new Card(5));
+        player.getHand().add(new Card(6));
+        player.getHand().add(new Card(7));
+        player.getHand().add(new Card(8));
+
+        player.playTurn();
+
+        assert(player.get_rightDeck().size() == 1 && player.get_leftDeck().size() == 4 && player.getHand().getHandCards().size() == 4);
+
+
     }
 }
 

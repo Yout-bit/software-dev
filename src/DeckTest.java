@@ -22,7 +22,10 @@ public class DeckTest {
         deck.add(new Card(5));
         deck.add(new Card(4));
 
-        assertEquals(2, deck.size());
+        assertEquals(deck.size(), 2);
+        assertEquals(deck.remove().getValue(), 5);
+        assertEquals(deck.remove().getValue(), 4);
+
     }
 
     @Test
@@ -47,11 +50,4 @@ public class DeckTest {
         assertEquals(2, deck.size());
     }
 
-//    @Test
-//    public void testToString() {
-//        deck.add("Card1");
-//        deck.add("Card2");
-//
-//        assertEquals("Card1 Card2 ", deck.toString());
-//    }
 }

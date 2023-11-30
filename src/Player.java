@@ -3,12 +3,12 @@ import java.util.List;
 
 public class Player extends Thread {
     
-    Hand _hand = new Hand();
-    Deck<Card> _leftDeck;
-    Deck<Card> _rightDeck;
-    int _preferredCardValue;
-    volatile int _winner = -1;
-    StringBuilderPlus _log = new StringBuilderPlus();
+    private Hand _hand = new Hand();
+    private Deck<Card> _leftDeck;
+    private Deck<Card> _rightDeck;
+    private int _preferredCardValue;
+    private volatile int _winner = -1;
+    private StringBuilderPlus _log = new StringBuilderPlus();
     
     public Player(Deck<Card> leftDeck, Deck<Card> rightDeck, int preferredCardValue) {
         _leftDeck = leftDeck;
@@ -26,6 +26,14 @@ public class Player extends Thread {
 
     public int getPreferredCard(){
         return _preferredCardValue;
+    }
+
+    public Deck<Card> get_leftDeck () {
+        return _leftDeck;
+    }
+
+    public Deck<Card> get_rightDeck () {
+        return _rightDeck;
     }
 
     // This will be the loop that is tun for all players simultaneously (threaded) until the someone wins
@@ -63,16 +71,18 @@ public class Player extends Thread {
      * Selects a card from the 5 in their hand to play and removes it from the hand 
      * and adds it to the right deck.
      */
-    private void playTurn() {
-        
+    public void playTurn() {
         if (_hand.allEqual()) {
             if (_winner == -1) {
                 _winner = _preferredCardValue;
             }
             return;
         }
-        _rightDeck.add( _hand.delete(_hand.add(_leftDeck.remove()).selectCard())); 
+
+        _rightDeck.add( _hand.delete(_hand.add(_leftDeck.remove()).selectCard()));
         _log.appendLine("player " + _preferredCardValue + " current hand is " + _hand);
+
+
     }
 
     public int getWinner() {
@@ -84,11 +94,7 @@ public class Player extends Thread {
     }
 
     public boolean getWon(){
-        if (_winner == _preferredCardValue) {
-            return true;
-        } else {
-            return false;
-        }
+        return _winner == _preferredCardValue;
     }
 
     class Hand {

@@ -51,7 +51,7 @@ public class CardGame {
     /*
      * Asks the user for a filename and the pack is invalid, keeps asking.
      */
-    private static void getPack(Scanner in) {
+    public static void getPack(Scanner in) {
         String filename = "";
         do {
             System.out.print("Enter card pack name   ");
@@ -66,7 +66,7 @@ public class CardGame {
      */
     public static boolean readPackFile(String filename) {
         try {
-            File file = new File("src\\" + filename);
+            File file = new File("src/" + filename);
             byte[] bytes = new byte[(int) file.length()];
             FileInputStream fis = new FileInputStream(file);
             fis.read(bytes);
@@ -95,7 +95,7 @@ public class CardGame {
      * Checks the pack if large enough and has a winning hand
      * Trims the pack to 8 times the number of players, trims from the back of the pack
      */
-    private static Pack checkPack(int[] listPack) throws InvalidPackError{
+    public static Pack checkPack(int[] listPack) throws InvalidPackError{
         if (listPack.length < 8 * _players.size()) {
             throw new InvalidPackError("Pack too small for number of players");
         }
@@ -147,7 +147,7 @@ public class CardGame {
         logDecks();
     }
     
-    private static int checkWinner() {
+    public static int checkWinner() {
         for (int i = 0 ; i < _players.size() ; i++) {
             if (_players.get(i).getWon()) {
                     return i + 1;
